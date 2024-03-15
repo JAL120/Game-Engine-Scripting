@@ -31,7 +31,7 @@ public class Player : MonoBehaviour
 
     public int maxHealth = 100;
     private int currentHealth;
-    public int damageAmount = 10;
+    
 
     public int keys = 0;
     public int coins = 0;
