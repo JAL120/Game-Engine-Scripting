@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,9 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [SerializeField] float speed;
+
+    private bool activated = false;
+
     private void Awake()
     {
         Destroy(gameObject, 15f);
@@ -32,5 +36,21 @@ public class Bullet : MonoBehaviour
         {
             Destroy(gameObject) ;
         }
+    }
+
+    private void Start()
+    {
+        GameManager.GetGameOverEvent().AddListener(reset);
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.GetGameOverEvent().RemoveListener(reset);
+    }
+
+    void reset()
+    {
+        activated = false;
+        gameObject.SetActive(true);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,42 +8,53 @@ public class key : MonoBehaviour
 {
     public GameObject door; // Reference to the door GameObject
     public TMP_Text keytext;
+    private bool activated = false;
 
     private int keysCollected = 0; // Number of keys collected by the player
 
-    void OnCollisionEnter(Collision collision)
+    void OnTriggerEnter(Collider other)
     {
-        TryOpenDoor();
-        if (collision.gameObject.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            
-            DoorTrigger door = FindObjectOfType<DoorTrigger>(); // Find the Door script in the scene
-            if (door != null)
-            {
-                
-                door.Open(); // Call the Unlock method in the Door script
-                Destroy(gameObject); // Destroy the key object after the player collects it
-            }
             keysCollected++;
             UpdateKeyUI();
+            gameObject.SetActive(false);
         }
     }
 
+    public void Open(DoorTrigger doorTrigger)
+    {
+        if (keysCollected > 0)//unlocking the door
+        {
+            doorTrigger.Destroy();
+            keysCollected--;
+            UpdateKeyUI();
+            Debug.Log("I unlocked the door");
+        }
+    }
+   
     void UpdateKeyUI()
     {
         // Update UI to display the number of keys collected
-        keytext.text = "Keys: " + keysCollected;
+        keytext.text = "Keys:"  + keysCollected;
     }
 
-    public void TryOpenDoor()
+
+    private void Start()
     {
-        // Check if the player has a key and the door exists
-        if (keysCollected > 0 && door != null)
-        {
-            // Open the door if the player has a key
-            Destroy(door);
-            keysCollected--; // Deduct the used key from the player's inventory
-            UpdateKeyUI();
-        }
+        GameManager.GetGameOverEvent().AddListener(reset);
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.GetGameOverEvent().RemoveListener(reset);
+    }
+
+    void reset()
+    {
+        activated = false;
+        gameObject.SetActive(true);
+        keysCollected = 0;
+        UpdateKeyUI();
     }
 }
